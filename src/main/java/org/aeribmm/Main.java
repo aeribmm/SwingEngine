@@ -1,4 +1,6 @@
 package org.aeribmm;
+import org.aeribmm.ui.GameWindow;
+
 import javax.swing.*;
 
 public class Main {

@@ -1,4 +1,4 @@
-package org.aeribmm;
+package org.aeribmm.game;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,10 +15,11 @@ public class GameData {
         gameText = new ArrayList<>(Arrays.asList(
                 "Добро пожаловать в визуальную новеллу!",
                 "Это первое предложение истории. Здесь будет развиваться сюжет.",
-                "Каждый клик мыши будет показывать следующее предложение.",
+                "Каждый клик мыши или нажатие пробела покажет следующее предложение.",
                 "Старый текст исчезает, а новый появляется на его месте.",
                 "Таким образом можно создать интерактивное повествование.",
                 "В будущем здесь будут появляться персонажи и меняться фоны.",
+                "Нажмите ESC чтобы вернуться в главное меню.",
                 "А пока что мы тестируем базовую функциональность текста.",
                 "Это последнее предложение в тестовой истории."
         ));
@@ -45,13 +46,26 @@ public class GameData {
         return "";
     }
 
+    public int getCurrentIndex() {
+        return currentTextIndex;
+    }
+
+    public int getTotalTexts() {
+        return gameText.size();
+    }
+
     // Методы для загрузки текста из файла
     public void loadGameText(ArrayList<String> newText) {
-        this.gameText = newText;
+        this.gameText = new ArrayList<>(newText);
         resetToStart();
     }
 
     public void addTextLine(String text) {
         gameText.add(text);
+    }
+
+    public void clearGameText() {
+        gameText.clear();
+        resetToStart();
     }
 }

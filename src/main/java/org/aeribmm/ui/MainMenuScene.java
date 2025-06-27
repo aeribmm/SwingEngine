@@ -1,4 +1,6 @@
-package org.aeribmm;
+package org.aeribmm.ui;
+import org.aeribmm.ui.GameWindow;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
