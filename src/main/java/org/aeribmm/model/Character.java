@@ -9,6 +9,7 @@ import java.awt.image.BufferedImage;
 import java.util.HashMap;
 
 public class Character {
+    private String id;
     private String name;
     private String nameInGame;
 
@@ -37,9 +38,10 @@ public class Character {
     //game data
     private int relationshipLevel;
 
-    public Character(String name, String nameInGame) {
-        this.name = name;
-        this.nameInGame = name;
+    public Character(String id, String nameInGame) {
+        this.id = id;
+        this.name = id;
+        this.nameInGame = nameInGame;
 
         // Инициализация
         this.sprites = new HashMap<>();
@@ -47,7 +49,7 @@ public class Character {
         this.isVisible = false;
         this.screenPosition = Position.CENTER;
         this.coordinates = new Point(0, 0);
-        this.scale = 1.0f;
+        this.scale = 0.8f;
         this.zOrder = 0;
 
         // Анимация
@@ -65,8 +67,14 @@ public class Character {
         return isAnimating;
     }
 
+    public String getId() {
+        return id;
+    }
 
-    //todo make field which represents relationships with main character
+    public void setId(String id) {
+        this.id = id;
+    }
+//todo make field which represents relationships with main character
 
     public void addSprite(String emotion, BufferedImage sprite) {
         sprites.put(emotion, sprite);
@@ -94,16 +102,17 @@ public class Character {
 
     public void setPosition(Position position) {
         this.screenPosition = position;
-        // Автоматически устанавливаем координаты
+        int gameAreaHeight = 600 - 180;
+        int characterY = gameAreaHeight - 400;
         switch (position) {
             case LEFT:
-                this.coordinates = new Point(150, 100);
+                this.coordinates = new Point(150, characterY);
                 break;
             case CENTER:
-                this.coordinates = new Point(400, 100);
+                this.coordinates = new Point(400, characterY);
                 break;
             case RIGHT:
-                this.coordinates = new Point(650, 100);
+                this.coordinates = new Point(650, characterY);
                 break;
         }
     }

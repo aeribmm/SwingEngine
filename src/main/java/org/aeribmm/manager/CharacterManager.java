@@ -36,7 +36,7 @@ public class CharacterManager {
 
     // Загружаем спрайты для персонажа
     private void loadCharacterSprites(Character character) {
-        String basePath = "src/main/resources/characters/" + character.getName() + "/";
+        String basePath = "src/main/resources/character/" + character.getId() + "/";
 
         // Список файлов для загрузки
         String[] spriteFiles = {
@@ -51,7 +51,7 @@ public class CharacterManager {
                 File imageFile = new File(fullPath);
                 if (imageFile.exists()) {
                     BufferedImage sprite = ImageIO.read(imageFile);
-                    character.addSprite(spriteName.toUpperCase(), sprite);
+                    character.addSprite(spriteName, sprite);
                     System.out.println("Загружен спрайт: " + fileName);
                 } else {
                     System.out.println("Спрайт не найден: " + fullPath);
@@ -143,10 +143,10 @@ public class CharacterManager {
     // === ТЕСТОВЫЕ МЕТОДЫ ===
 
     public void testShowAiri() {
-        showCharacter("airi", Position.CENTER, "default");
+        showCharacter("airi", Position.CENTER, "DEFAULT");
     }
 
     public void testChangeAiriEmotion() {
-        changeEmotion("airi", "smiling");
+        changeEmotion("airi", "SMILING");
     }
 }

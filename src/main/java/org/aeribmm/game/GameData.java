@@ -60,4 +60,5 @@ public class GameData {
     public void addTextLine(String text) {
         gameText.add(text);
     }
+
 }

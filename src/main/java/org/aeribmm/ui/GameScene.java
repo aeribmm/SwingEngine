@@ -99,7 +99,8 @@ public class GameScene extends JPanel {
 
     private void setupUI() {
         setLayout(new BorderLayout());
-        setBackground(Color.BLACK);
+        setBackground(new Color(0, 0, 0, 0));
+
 
         JButton exitButton = new JButton("Выход");
         exitButton.setPreferredSize(new Dimension(80, 30));
@@ -164,6 +165,7 @@ public class GameScene extends JPanel {
 
     public void nextText() {
         if (gameData.hasNextText()) {
+            textBox.clearText();
             gameData.nextText();
             textBox.showCurrentText();
 
