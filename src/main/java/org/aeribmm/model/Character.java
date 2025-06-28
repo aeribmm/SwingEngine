@@ -1,7 +1,6 @@
 package org.aeribmm.model;
 
 import org.aeribmm.model.enums.animation.AnimationType;
-import org.aeribmm.model.enums.emotions.Emotions;
 import org.aeribmm.model.enums.position.Position;
 
 import java.awt.*;
@@ -23,6 +22,7 @@ public class Character {
     private Position screenPosition;
     private Point coordinates;
     private float scale;
+    private int zOrder;
 
     // === АНИМАЦИЯ ===
 
@@ -48,6 +48,7 @@ public class Character {
         this.screenPosition = Position.CENTER;
         this.coordinates = new Point(0, 0);
         this.scale = 1.0f;
+        this.zOrder = 0;
 
         // Анимация
         this.isAnimating = false;
@@ -60,6 +61,10 @@ public class Character {
         this.relationshipLevel = 0;
 
     }
+    public boolean isAnimating(){
+        return isAnimating;
+    }
+
 
     //todo make field which represents relationships with main character
 
@@ -226,6 +231,8 @@ public class Character {
     public float getScale() {
         return scale;
     }
+    public int getZOrder() { return zOrder; }
+    public void setZOrder(int zOrder) { this.zOrder = zOrder; }
 
     public void setScale(float scale) {
         this.scale = Math.max(0.1f, Math.min(3.0f, scale));

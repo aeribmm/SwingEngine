@@ -14,16 +14,18 @@ public class GameData {
     private void initializeTestData() {
         gameText = new ArrayList<>(Arrays.asList(
                 "Добро пожаловать в визуальную новеллу!",
-                "Это первое предложение истории. Здесь будет развиваться сюжет.",
-                "Каждый клик мыши или нажатие пробела покажет следующее предложение.",
-                "Старый текст исчезает, а новый появляется на его месте.",
+                "Это Аири, главная героиня нашей истории.",
+                "Смотри, как она улыбается! Разве не мило?",
+                "Каждый клик мыши будет показывать следующее предложение.",
+                "А иногда Аири может погрустить...",
+                "Но не волнуйся, она быстро поправится!",
                 "Таким образом можно создать интерактивное повествование.",
-                "В будущем здесь будут появляться персонажи и меняться фоны.",
-                "Нажмите ESC чтобы вернуться в главное меню.",
-                "А пока что мы тестируем базовую функциональность текста.",
+                "В будущем здесь будут появляться разные персонажи.",
                 "Это последнее предложение в тестовой истории."
         ));
     }
+
+    // ... остальные методы без изменений
 
     public void resetToStart() {
         currentTextIndex = 0;
@@ -50,11 +52,6 @@ public class GameData {
         return currentTextIndex;
     }
 
-    public int getTotalTexts() {
-        return gameText.size();
-    }
-
-    // Методы для загрузки текста из файла
     public void loadGameText(ArrayList<String> newText) {
         this.gameText = new ArrayList<>(newText);
         resetToStart();
@@ -62,10 +59,5 @@ public class GameData {
 
     public void addTextLine(String text) {
         gameText.add(text);
-    }
-
-    public void clearGameText() {
-        gameText.clear();
-        resetToStart();
     }
 }

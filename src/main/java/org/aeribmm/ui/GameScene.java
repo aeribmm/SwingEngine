@@ -1,4 +1,7 @@
 package org.aeribmm.ui;
+
+import org.aeribmm.manager.CharacterManager;
+import org.aeribmm.model.enums.position.Position;
 import org.aeribmm.game.GameData;
 
 import javax.swing.*;
@@ -11,23 +14,42 @@ public class GameScene extends JPanel {
     private GameWindow parentWindow;
     private TextBox textBox;
     private GameData gameData;
+    private CharacterManager characterManager;    // ДОБАВИЛИ
     private BufferedImage backgroundImage;
+
+    // Для анимации
+    private Timer animationTimer;
+    private long lastFrameTime;
 
     public GameScene(GameWindow parent) {
         this.parentWindow = parent;
         this.gameData = new GameData();
+        this.characterManager = new CharacterManager();  // СОЗДАЕМ МЕНЕДЖЕР
         loadBackgroundImage();
         setupUI();
+        setupAnimationTimer();
+    }
+
+    // Настройка таймера анимации
+    private void setupAnimationTimer() {
+        lastFrameTime = System.nanoTime();
+        animationTimer = new Timer(16, e -> {  // ~60 FPS
+            long currentTime = System.nanoTime();
+            float deltaTime = (currentTime - lastFrameTime) / 1_000_000_000.0f;
+            lastFrameTime = currentTime;
+
+            characterManager.update(deltaTime);
+            repaint();
+        });
+        animationTimer.start();
     }
 
     private void loadBackgroundImage() {
         try {
-            // Попробуем загрузить из ресурсов или из файла
             String[] possiblePaths = {
-                    "src/main/resources/images/bg_road.png",
-                    "images/bg_road.png",
-                    "bg_road.png",
-                    "src/main/java/org/aeribmm/images/bg_road.png"
+                    "src/main/resources/images/background/bg_road.png",
+                    "images/background/bg_road.png",
+                    "bg_road.png"
             };
 
             boolean loaded = false;
@@ -36,22 +58,20 @@ public class GameScene extends JPanel {
                     File imageFile = new File(path);
                     if (imageFile.exists()) {
                         backgroundImage = ImageIO.read(imageFile);
-                        System.out.println("Фон успешно загружен из: " + path);
+                        System.out.println("Фон загружен: " + path);
                         loaded = true;
                         break;
                     }
                 } catch (Exception e) {
-                    // Пропускаем эту попытку
+                    // Пропускаем
                 }
             }
 
             if (!loaded) {
-                System.out.println("Фон не найден, создаем запасной");
                 backgroundImage = createDefaultBackground();
             }
 
         } catch (Exception e) {
-            System.out.println("Ошибка загрузки фона: " + e.getMessage());
             backgroundImage = createDefaultBackground();
         }
     }
@@ -61,15 +81,13 @@ public class GameScene extends JPanel {
         Graphics2D g2d = img.createGraphics();
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        // Создаем простой градиент как замену
         GradientPaint gradient = new GradientPaint(
-                0, 0, new Color(135, 206, 235), // Светло-голубой
-                0, 600, new Color(25, 25, 112)  // Темно-синий
+                0, 0, new Color(135, 206, 235),
+                0, 600, new Color(25, 25, 112)
         );
         g2d.setPaint(gradient);
         g2d.fillRect(0, 0, 800, 600);
 
-        // Добавляем простое изображение дороги
         g2d.setColor(new Color(60, 60, 60));
         int[] roadX = {300, 350, 450, 500};
         int[] roadY = {600, 400, 400, 600};
@@ -83,29 +101,46 @@ public class GameScene extends JPanel {
         setLayout(new BorderLayout());
         setBackground(Color.BLACK);
 
-        // Кнопка выхода
         JButton exitButton = new JButton("Выход");
         exitButton.setPreferredSize(new Dimension(80, 30));
         exitButton.addActionListener(e -> parentWindow.showMainMenu());
+
+        // ДОБАВЛЯЕМ КНОПКИ ДЛЯ ТЕСТИРОВАНИЯ ПЕРСОНАЖА
+        JButton testShowButton = new JButton("Показать Аири");
+        testShowButton.addActionListener(e -> characterManager.testShowAiri());
+
+        JButton testEmotionButton = new JButton("Сменить эмоцию");
+        testEmotionButton.addActionListener(e -> characterManager.testChangeAiriEmotion());
+
+        JButton testHideButton = new JButton("Скрыть");
+        testHideButton.addActionListener(e -> characterManager.hideCharacter("airi"));
 
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         topPanel.setOpaque(false);
         topPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         topPanel.add(exitButton);
+        topPanel.add(testShowButton);      // ДОБАВИЛИ
+        topPanel.add(testEmotionButton);   // ДОБАВИЛИ
+        topPanel.add(testHideButton);      // ДОБАВИЛИ
 
-        // Область для фона и персонажей
         JPanel gameArea = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
+                Graphics2D g2d = (Graphics2D) g.create();
+
+                // Рисуем фон
                 if (backgroundImage != null) {
-                    // Масштабируем изображение под размер панели
-                    g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
+                    g2d.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), this);
                 } else {
-                    // Запасной фон
-                    g.setColor(new Color(25, 25, 112));
-                    g.fillRect(0, 0, getWidth(), getHeight());
+                    g2d.setColor(new Color(25, 25, 112));
+                    g2d.fillRect(0, 0, getWidth(), getHeight());
                 }
+
+                // РИСУЕМ ПЕРСОНАЖЕЙ
+                characterManager.draw(g2d);
+
+                g2d.dispose();
             }
         };
         gameArea.setLayout(new BorderLayout());
@@ -114,20 +149,32 @@ public class GameScene extends JPanel {
 
         add(gameArea, BorderLayout.CENTER);
 
-        // Текстовое окно
         textBox = new TextBox(this);
         add(textBox, BorderLayout.SOUTH);
     }
 
     public void startNewGame() {
+        characterManager.hideAllCharacters();  // Очищаем экран
         gameData.resetToStart();
         textBox.showCurrentText();
+
+        // АВТОМАТИЧЕСКИ ПОКАЗЫВАЕМ АИРИ В НАЧАЛЕ ИГРЫ
+        characterManager.showCharacter("airi", Position.CENTER, "default");
     }
 
     public void nextText() {
         if (gameData.hasNextText()) {
             gameData.nextText();
             textBox.showCurrentText();
+
+            // ПРИМЕР: меняем эмоцию в зависимости от текста
+            int textIndex = gameData.getCurrentIndex();
+            if (textIndex == 2) {
+                characterManager.changeEmotion("airi", "smiling");
+            } else if (textIndex == 4) {
+                characterManager.changeEmotion("airi", "disappointed");
+            }
+
         } else {
             JOptionPane.showMessageDialog(this, "История завершена!");
             parentWindow.showMainMenu();
@@ -136,5 +183,18 @@ public class GameScene extends JPanel {
 
     public String getCurrentText() {
         return gameData.getCurrentText();
+    }
+
+    // Получить менеджер персонажей (для будущих нужд)
+    public CharacterManager getCharacterManager() {
+        return characterManager;
+    }
+
+    @Override
+    public void removeNotify() {
+        super.removeNotify();
+        if (animationTimer != null) {
+            animationTimer.stop();
+        }
     }
 }
