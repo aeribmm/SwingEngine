@@ -5,10 +5,7 @@ import org.aeribmm.VisualNovelMain;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.event.*;
 
 public class GameScene extends MenuScreen implements KeyListener {
     private JLabel textArea;
@@ -17,14 +14,45 @@ public class GameScene extends MenuScreen implements KeyListener {
     private JPanel nameBox;
     private String currentText = "";
     private boolean showingCharacterName = false;
+    private boolean textBoxHidden = true;
 
     @Override
     public void createMenu() {
         // Основная панель с фоновым изображением
-        panel = new BackgroundPanel("backgrounds/bg-music-room.png"); // Замените на игровой фон
+        panel = new BackgroundPanel("images/airi/bg-airi-play.png"); // Замените на игровой фон
         panel.setLayout(new BorderLayout());
         panel.setFocusable(true);
         panel.addKeyListener(this);
+        panel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON1) { // Левая кнопка мыши
+                    handleContinue();
+                }
+            }
+        });
+        panel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON1) { // Левая кнопка
+                    if (!textBoxHidden) { // Продолжаем только если текст виден
+                        handleContinue();
+                    }
+                } else if (e.getButton() == MouseEvent.BUTTON3) { // Правая кнопка
+                    if (textBoxHidden) {
+                        // Показываем текстовое окно
+                        textBox.setVisible(true);
+                        textBoxHidden = false;
+                    } else {
+                        // Скрываем текстовое окно
+                        textBox.setVisible(false);
+                        textBoxHidden = true;
+                    }
+                    panel.repaint(); // Перерисовываем панель
+                }
+            }
+        });
+
 
         // Создаем текстовое окно внизу экрана
         createTextBox();
@@ -186,6 +214,7 @@ public class GameScene extends MenuScreen implements KeyListener {
 
     @Override
     public void hide() {
-        panel.setVisible(false);
+        System.out.println("trying to hide text box");
+        textBox.setVisible(false);
     }
 }

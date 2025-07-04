@@ -82,10 +82,6 @@ public class VisualNovelMain {
         GameScene gameScreen = new GameScene();
         gameScreen.createMenu();
         menus.put("game",gameScreen);
-        // Здесь позже добавите другие меню:
-        // SettingsMenuScreen settingsMenu = new SettingsMenuScreen();
-        // settingsMenu.createMenu();
-        // menus.put("settings", settingsMenu);
     }
 
     private void showMainMenu() {
