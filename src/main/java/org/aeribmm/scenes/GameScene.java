@@ -17,6 +17,12 @@ public class GameScene extends MenuScreen implements KeyListener {
     private boolean showingCharacterName = false;
     private boolean textBoxHidden = true;
     private Parser parser;
+    //Test
+    private Timer typewriterTimer;
+    private String fullText = "";
+    private int currentCharIndex = 0;
+    private boolean isTyping = false;
+    private final int TYPING_DELAY = 15;
 
     @Override
     public void createMenu() {
@@ -138,12 +144,62 @@ public class GameScene extends MenuScreen implements KeyListener {
     }
 
     // Показать текст без имени персонажа (авторский текст)
+//    public void showText(String text) { working version
+//        nameBox.setVisible(false);
+//        showingCharacterName = false;
+//        currentText = wrapText(text);
+//        textArea.setText(currentText);
+//        panel.repaint();
+//    }
+
     public void showText(String text) {
         nameBox.setVisible(false);
         showingCharacterName = false;
-        currentText = wrapText(text);
-        textArea.setText(currentText);
+
+        // Останавливаем предыдущую анимацию, если она идет
+        if (typewriterTimer != null && typewriterTimer.isRunning()) {
+            typewriterTimer.stop();
+        }
+
+        // Сохраняем полный текст и сбрасываем индекс
+        fullText = text;
+        currentCharIndex = 0;
+        isTyping = true;
+
+        // Очищаем текстовую область
+        textArea.setText("");
+
+        // Создаем таймер для постепенного появления текста
+        typewriterTimer = new Timer(TYPING_DELAY, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (currentCharIndex <= fullText.length()) {
+                    // Получаем подстроку от начала до текущего индекса
+                    String displayText = fullText.substring(0, currentCharIndex);
+
+                    // Обновляем текст с HTML-оберткой
+                    textArea.setText(wrapText(displayText));
+
+                    currentCharIndex++;
+                } else {
+                    // Анимация завершена
+                    typewriterTimer.stop();
+                    isTyping = false;
+                }
+            }
+        });
+
+        // Запускаем анимацию
+        typewriterTimer.start();
         panel.repaint();
+    }
+    public void finishTyping() {
+        if (isTyping && typewriterTimer != null) {
+            typewriterTimer.stop();
+            textArea.setText(wrapText(fullText));
+            isTyping = false;
+            panel.repaint();
+        }
     }
 
     // Показать текст с именем персонажа (диалог)
@@ -182,11 +238,18 @@ public class GameScene extends MenuScreen implements KeyListener {
     }
 
     private void handleContinue() {
+        // Если текст печатается, завершаем анимацию
+        if (isTyping) {
+            finishTyping();
+            return;
+        }
+
+        // Иначе переходим к следующей строке
         if (parser != null && parser.hasNextLine()) {
             parser.nextLine();
         } else if (parser != null) {
-            // Показываем сообщение о конце истории
             showText("Конец истории. Нажмите ESC для выхода в меню.");
+            VisualNovelMain.getInstance().changeScreen("main");
         }
     }
 
