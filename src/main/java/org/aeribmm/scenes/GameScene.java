@@ -2,8 +2,9 @@ package org.aeribmm.scenes;
 
 import org.aeribmm.BackgroundPanel;
 import org.aeribmm.VisualNovelMain;
-import org.aeribmm.parser.Parser;
-
+import org.aeribmm.parser.TextLoader;
+import org.aeribmm.soundManager.AudioInitializer;
+import org.aeribmm.soundManager.AudioManager;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -16,7 +17,7 @@ public class GameScene extends MenuScreen implements KeyListener {
     private String currentText = "";
     private boolean showingCharacterName = false;
     private boolean textBoxHidden = true;
-    private Parser parser;
+    private TextLoader textLoader;
     //Test
     private Timer typewriterTimer;
     private String fullText = "";
@@ -31,6 +32,7 @@ public class GameScene extends MenuScreen implements KeyListener {
         panel.setLayout(new BorderLayout());
         panel.setFocusable(true);
         panel.addKeyListener(this);
+        AudioInitializer.loadPianoSceneAudio();
         panel.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -56,16 +58,16 @@ public class GameScene extends MenuScreen implements KeyListener {
 
         // Создаем текстовое окно внизу экрана
         createTextBox();
-        parser = new Parser(this);
+        textLoader = new TextLoader(this);
 
         // Загружаем текст из файла
-        parser.loadTextFile("story.txt");
+        textLoader.loadTextFile("story.txt");
         // Добавляем текстовое окно к основной панели
         panel.add(textBox, BorderLayout.SOUTH);
 
         // Тестовый текст для демонстрации
 //        showText("Добро пожаловать в визуальную новеллу! Нажмите пробел или Enter для продолжения.");
-        parser.start();
+        textLoader.start();
     }
     private void toggleTextBox() {
         textBoxHidden = !textBoxHidden;
@@ -222,7 +224,9 @@ public class GameScene extends MenuScreen implements KeyListener {
 
     // Автоматический перенос текста для HTML
     private String wrapText(String text) {
-        return "<html><body style='width: 700px'>" + text + "</body></html>";
+        int panelWidth = textArea.getParent().getWidth();
+        System.out.println("Ширина текстовой панели: " + panelWidth + "px");
+        return "<html><body style='width: 1400'>" + text + "</body></html>";
     }
 
     // Обработка нажатий клавиш для продолжения
@@ -245,11 +249,12 @@ public class GameScene extends MenuScreen implements KeyListener {
         }
 
         // Иначе переходим к следующей строке
-        if (parser != null && parser.hasNextLine()) {
-            parser.nextLine();
-        } else if (parser != null) {
+        if (textLoader != null && textLoader.hasNextLine()) {
+            textLoader.nextLine();
+        } else if (textLoader != null) {
             showText("Конец истории. Нажмите ESC для выхода в меню.");
             VisualNovelMain.getInstance().changeScreen("main");
+            AudioManager.getInstance().stopBackgroundMusic();
         }
     }
 
