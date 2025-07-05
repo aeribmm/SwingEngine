@@ -2,6 +2,7 @@ package org.aeribmm.scenes;
 
 import org.aeribmm.BackgroundPanel;
 import org.aeribmm.VisualNovelMain;
+import org.aeribmm.parser.Parser;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,6 +16,7 @@ public class GameScene extends MenuScreen implements KeyListener {
     private String currentText = "";
     private boolean showingCharacterName = false;
     private boolean textBoxHidden = true;
+    private Parser parser;
 
     @Override
     public void createMenu() {
@@ -39,15 +41,7 @@ public class GameScene extends MenuScreen implements KeyListener {
                         handleContinue();
                     }
                 } else if (e.getButton() == MouseEvent.BUTTON3) { // Правая кнопка
-                    if (textBoxHidden) {
-                        // Показываем текстовое окно
-                        textBox.setVisible(true);
-                        textBoxHidden = false;
-                    } else {
-                        // Скрываем текстовое окно
-                        textBox.setVisible(false);
-                        textBoxHidden = true;
-                    }
+                    toggleTextBox();
                     panel.repaint(); // Перерисовываем панель
                 }
             }
@@ -56,12 +50,22 @@ public class GameScene extends MenuScreen implements KeyListener {
 
         // Создаем текстовое окно внизу экрана
         createTextBox();
+        parser = new Parser(this);
 
+        // Загружаем текст из файла
+        parser.loadTextFile("story.txt");
         // Добавляем текстовое окно к основной панели
         panel.add(textBox, BorderLayout.SOUTH);
 
         // Тестовый текст для демонстрации
-        showText("Добро пожаловать в визуальную новеллу! Нажмите пробел или Enter для продолжения.");
+//        showText("Добро пожаловать в визуальную новеллу! Нажмите пробел или Enter для продолжения.");
+        parser.start();
+    }
+    private void toggleTextBox() {
+        textBoxHidden = !textBoxHidden;
+        textBox.setVisible(!textBoxHidden);
+        System.out.println(textBoxHidden ? "Текстовое окно скрыто" : "Текстовое окно показано");
+        panel.repaint();
     }
 
     private void createTextBox() {
@@ -178,15 +182,11 @@ public class GameScene extends MenuScreen implements KeyListener {
     }
 
     private void handleContinue() {
-        // Примеры текстов для демонстрации
-        if (currentText.contains("Добро пожаловать")) {
-            showCharacterText("Аня", "Привет! Меня зовут Аня. Как дела?");
-        } else if (currentText.contains("Привет! Меня зовут Аня")) {
-            showCharacterText("Максим", "О, привет Аня! У меня все отлично, спасибо!");
-        } else if (currentText.contains("У меня все отлично")) {
-            showText("Максим улыбнулся. Было видно, что он рад встрече.");
-        } else {
-            showText("Это демонстрация текстового движка. Нажмите ESC для выхода в меню.");
+        if (parser != null && parser.hasNextLine()) {
+            parser.nextLine();
+        } else if (parser != null) {
+            // Показываем сообщение о конце истории
+            showText("Конец истории. Нажмите ESC для выхода в меню.");
         }
     }
 
