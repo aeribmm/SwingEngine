@@ -108,7 +108,8 @@ log/
 # application.properties
 
 # Папки с ресурсами (раскомментируйте если нужно игнорировать целиком)
-# resources/backgrounds/
-# resources/images/
+resources/backgrounds/
+resources/images/
 # resources/sounds/
 # resources/music/
+resources/audio/

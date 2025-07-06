@@ -50,12 +50,29 @@ public class TextLoader {
                     textIndex++;
                     showCurrentLine();
                 }
-            } else {
+            }
+            // Проверяем, является ли строка диалогом персонажа
+            else if (isCharacterDialog(currentText)) {
+                String characterName = currentText.trim();
+                // Переходим к следующей строке для получения текста диалога
+                if (hasNextLine()) {
+                    textIndex++;
+                    if (textIndex < text.size()) {
+                        String dialogText = text.get(textIndex);
+                        gameScene.showCharacterText(characterName, dialogText);
+                        System.out.println("Диалог " + characterName + ": " + dialogText);
+                    }
+                }
+            }
+            else {
                 // Обычный текст - показываем игроку
                 gameScene.showText(currentText);
                 System.out.println("Строка " + (textIndex + 1) + "/" + text.size() + ": " + currentText);
             }
         }
+    }
+    private boolean isCharacterDialog(String line) {
+        return line.trim().endsWith(":") && !line.startsWith("#");
     }
 
     private boolean isCommand(String line) {
@@ -78,6 +95,7 @@ public class TextLoader {
             System.out.println("Воспроизводится звук: " + soundName);
         }
     }
+
 
     private String extractParameter(String line, String prefix, String suffix) {
         int startIndex = line.indexOf(prefix) + prefix.length();

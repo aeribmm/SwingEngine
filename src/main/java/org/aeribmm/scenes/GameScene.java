@@ -144,57 +144,6 @@ public class GameScene extends MenuScreen implements KeyListener {
         textBox.add(nameBox, BorderLayout.NORTH);
         textBox.add(mainTextPanel, BorderLayout.CENTER);
     }
-
-    // Показать текст без имени персонажа (авторский текст)
-//    public void showText(String text) { working version
-//        nameBox.setVisible(false);
-//        showingCharacterName = false;
-//        currentText = wrapText(text);
-//        textArea.setText(currentText);
-//        panel.repaint();
-//    }
-
-    public void showText(String text) {
-        nameBox.setVisible(false);
-        showingCharacterName = false;
-
-        // Останавливаем предыдущую анимацию, если она идет
-        if (typewriterTimer != null && typewriterTimer.isRunning()) {
-            typewriterTimer.stop();
-        }
-
-        // Сохраняем полный текст и сбрасываем индекс
-        fullText = text;
-        currentCharIndex = 0;
-        isTyping = true;
-
-        // Очищаем текстовую область
-        textArea.setText("");
-
-        // Создаем таймер для постепенного появления текста
-        typewriterTimer = new Timer(TYPING_DELAY, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (currentCharIndex <= fullText.length()) {
-                    // Получаем подстроку от начала до текущего индекса
-                    String displayText = fullText.substring(0, currentCharIndex);
-
-                    // Обновляем текст с HTML-оберткой
-                    textArea.setText(wrapText(displayText));
-
-                    currentCharIndex++;
-                } else {
-                    // Анимация завершена
-                    typewriterTimer.stop();
-                    isTyping = false;
-                }
-            }
-        });
-
-        // Запускаем анимацию
-        typewriterTimer.start();
-        panel.repaint();
-    }
     public void finishTyping() {
         if (isTyping && typewriterTimer != null) {
             typewriterTimer.stop();
@@ -205,13 +154,55 @@ public class GameScene extends MenuScreen implements KeyListener {
     }
 
     // Показать текст с именем персонажа (диалог)
-    public void showCharacterText(String characterName, String text) {
-        characterNameLabel.setText(characterName);
-        nameBox.setVisible(true);
-        showingCharacterName = true;
-        currentText = wrapText(text);
-        textArea.setText(currentText);
+    // Универсальный метод для анимации текста
+    private void animateText(String text, boolean isCharacterDialog, String characterName) {
+        // Настройка интерфейса
+        if (isCharacterDialog) {
+            characterNameLabel.setText(characterName);
+            nameBox.setVisible(true);
+            showingCharacterName = true;
+        } else {
+            nameBox.setVisible(false);
+            showingCharacterName = false;
+        }
+
+        // Останавливаем предыдущую анимацию
+        if (typewriterTimer != null && typewriterTimer.isRunning()) {
+            typewriterTimer.stop();
+        }
+
+        // Настройка анимации
+        fullText = text;
+        currentCharIndex = 0;
+        isTyping = true;
+        textArea.setText("");
+
+        // Запуск анимации
+        typewriterTimer = new Timer(TYPING_DELAY, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (currentCharIndex <= fullText.length()) {
+                    String displayText = fullText.substring(0, currentCharIndex);
+                    textArea.setText(wrapText(displayText));
+                    currentCharIndex++;
+                } else {
+                    typewriterTimer.stop();
+                    isTyping = false;
+                }
+            }
+        });
+
+        typewriterTimer.start();
         panel.repaint();
+    }
+
+    // Обновленные методы
+    public void showText(String text) {
+        animateText(text, false, "");
+    }
+
+    public void showCharacterText(String characterName, String text) {
+        animateText(text, true, characterName);
     }
 
     // Очистить текстовое окно
@@ -226,7 +217,7 @@ public class GameScene extends MenuScreen implements KeyListener {
     private String wrapText(String text) {
         int panelWidth = textArea.getParent().getWidth();
         System.out.println("Ширина текстовой панели: " + panelWidth + "px");
-        return "<html><body style='width: 1400'>" + text + "</body></html>";
+        return "<html><body style='width: 1100px'>" + text + "</body></html>";
     }
 
     // Обработка нажатий клавиш для продолжения
