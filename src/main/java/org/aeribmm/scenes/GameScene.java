@@ -18,7 +18,7 @@ public class GameScene extends MenuScreen implements KeyListener {
     private JPanel nameBox;
     private String currentText = "";
     private boolean showingCharacterName = false;
-    private boolean textBoxHidden = false;
+    private boolean textBoxHidden = false; // ИЗМЕНЕНО: по умолчанию окно ПОКАЗАНО
     private TextLoader textLoader;
 
     // Анимация текста
@@ -56,9 +56,8 @@ public class GameScene extends MenuScreen implements KeyListener {
                 panel.requestFocusInWindow();
 
                 if (e.getButton() == MouseEvent.BUTTON1) { // Левая кнопка
-                    if (!textBoxHidden) {
-                        handleContinue();
-                    }
+                    // Убрали проверку textBoxHidden - теперь клик всегда работает
+                    handleContinue();
                 } else if (e.getButton() == MouseEvent.BUTTON3) { // Правая кнопка
                     toggleTextBox();
                     panel.repaint();
@@ -98,7 +97,7 @@ public class GameScene extends MenuScreen implements KeyListener {
                 characterNameLabel.setText(characterName);
                 nameBox.setVisible(true);
             } else {
-                nameBox.setVisible(false);
+                nameBox.setVisible(false); // По умолчанию скрыто
             }
 
             // Останавливаем любые таймеры
@@ -359,6 +358,8 @@ public class GameScene extends MenuScreen implements KeyListener {
             public void actionPerformed(ActionEvent e) {
                 System.out.println("Таймер сработал! ctrlPressed: " + ctrlPressed + ", fastForward: " + fastForwardMode);
 
+                Timer currentTimer = (Timer) e.getSource();
+
                 if (ctrlPressed && fastForwardMode) {
                     System.out.println("Выполняем автопродвижение");
                     handleContinue();
@@ -366,9 +367,13 @@ public class GameScene extends MenuScreen implements KeyListener {
                     System.out.println("Условия не выполнены, автопродвижение отменено");
                 }
 
-                // Удаляем таймер из списка
-                activeTimers.remove((Timer) e.getSource());
-                System.out.println("Таймер удален из списка, осталось: " + activeTimers.size());
+                // ИСПРАВЛЕНИЕ: безопасное удаление таймера
+                if (activeTimers.contains(currentTimer)) {
+                    activeTimers.remove(currentTimer);
+                    System.out.println("Таймер удален из списка, осталось: " + activeTimers.size());
+                } else {
+                    System.out.println("Таймер уже был удален из списка");
+                }
             }
         });
         autoAdvanceTimer.setRepeats(false);
@@ -383,19 +388,32 @@ public class GameScene extends MenuScreen implements KeyListener {
     private void stopAllAutoAdvanceTimers() {
         System.out.println("Останавливаем все таймеры: " + activeTimers.size());
 
-        for (Timer timer : new ArrayList<>(activeTimers)) {
+        // ИСПРАВЛЕНИЕ: создаем копию списка для безопасного перебора
+        List<Timer> timersToStop = new ArrayList<>(activeTimers);
+
+        for (Timer timer : timersToStop) {
             if (timer != null && timer.isRunning()) {
                 timer.stop();
+                System.out.println("Таймер остановлен");
             }
         }
+
+        // ВАЖНО: полностью очищаем список
         activeTimers.clear();
-        System.out.println("Все таймеры остановлены");
+        System.out.println("Все таймеры остановлены, список очищен. Осталось: " + activeTimers.size());
     }
 
     // ============ ОБРАБОТКА ВВОДА ============
 
     @Override
     public void keyPressed(KeyEvent e) {
+        // Игнорируем системные клавиши
+        if (e.getKeyCode() == KeyEvent.VK_ALT ||
+                e.getKeyCode() == KeyEvent.VK_WINDOWS ||
+                e.getKeyCode() == KeyEvent.VK_CONTEXT_MENU) {
+            return;
+        }
+
         System.out.println("Key pressed: " + e.getKeyCode() + " (" + KeyEvent.getKeyText(e.getKeyCode()) + ")");
 
         if (e.getKeyCode() == KeyEvent.VK_CONTROL && !ctrlPressed) { // ВАЖНО: только если Ctrl еще не был нажат
@@ -419,6 +437,13 @@ public class GameScene extends MenuScreen implements KeyListener {
 
     @Override
     public void keyReleased(KeyEvent e) {
+        // Игнорируем системные клавиши
+        if (e.getKeyCode() == KeyEvent.VK_ALT ||
+                e.getKeyCode() == KeyEvent.VK_WINDOWS ||
+                e.getKeyCode() == KeyEvent.VK_CONTEXT_MENU) {
+            return;
+        }
+
         System.out.println("Key released: " + e.getKeyCode() + " (" + KeyEvent.getKeyText(e.getKeyCode()) + ")");
 
         if (e.getKeyCode() == KeyEvent.VK_CONTROL) {
@@ -436,7 +461,7 @@ public class GameScene extends MenuScreen implements KeyListener {
     // ============ ОСНОВНАЯ ЛОГИКА ============
 
     private void handleContinue() {
-        System.out.println("handleContinue: isTyping=" + isTyping + ", fastForward=" + fastForwardMode);
+        System.out.println("handleContinue: isTyping=" + isTyping + ", fastForward=" + fastForwardMode + ", textBoxHidden=" + textBoxHidden);
 
         // ВАЖНО: Всегда восстанавливаем фокус при обработке продолжения
         if (!panel.hasFocus()) {
@@ -472,7 +497,38 @@ public class GameScene extends MenuScreen implements KeyListener {
     }
 
     private String wrapText(String text) {
-        return "<html><body style='width: 1100px'>" + text + "</body></html>";
+        if (textArea.getParent() == null) {
+            return "<html><body>" + text + "</body></html>";
+        }
+
+        int panelWidth = textArea.getParent().getWidth();
+        int textWidth = calculateSafeTextWidth(panelWidth);
+
+        return "<html><body style='width: " + textWidth + "px'>" + text + "</body></html>";
+    }
+
+    private int calculateSafeTextWidth(int panelWidth) {
+        // Получаем ширину экрана для определения типа монитора
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+
+        int textWidth;
+
+        if (screenSize.width >= 3000) {
+            // Широкие мониторы (4K, ультраширокие)
+            textWidth = Math.min(1400, (int)(panelWidth * 0.45));
+        } else if (screenSize.width >= 1800) {
+            // Большие мониторы (1440p, большие Full HD)
+            textWidth = Math.min(1200, (int)(panelWidth * 0.65));
+        } else {
+            // Стандартные мониторы (ваш случай)
+            textWidth = (int)(panelWidth * 0.73); // Ваше проверенное значение
+        }
+
+        // Безопасные границы
+        textWidth = Math.max(400, textWidth);   // Не меньше 400px
+        textWidth = Math.min(1600, textWidth);  // Не больше 1600px
+
+        return textWidth;
     }
 
     private void returnToMainMenu() {
@@ -538,12 +594,20 @@ public class GameScene extends MenuScreen implements KeyListener {
 
     // Запуск таймера контроля фокуса
     private void startFocusTimer() {
-        focusTimer = new Timer(1000, new ActionListener() { // Проверяем каждую секунду
+        focusTimer = new Timer(2000, new ActionListener() { // ИЗМЕНЕНО: проверяем каждые 2 секунды
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (!panel.hasFocus()) {
-                    System.out.println("Фокус потерян, восстанавливаем...");
-                    panel.requestFocusInWindow();
+                // ИСПРАВЛЕНИЕ: проверяем только если окно активно и видимо
+                if (panel.isDisplayable() && panel.isVisible()) {
+                    if (!panel.hasFocus() && !panel.isFocusOwner()) {
+                        System.out.println("Фокус потерян, восстанавливаем...");
+                        SwingUtilities.invokeLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                panel.requestFocusInWindow();
+                            }
+                        });
+                    }
                 }
             }
         });
