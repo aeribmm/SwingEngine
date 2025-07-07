@@ -10,7 +10,6 @@ public class Main {
             e.printStackTrace();
         }
 
-        // Запускаем приложение в EDT (Event Dispatch Thread)
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {

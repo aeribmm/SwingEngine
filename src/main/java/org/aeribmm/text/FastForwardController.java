@@ -102,7 +102,5 @@ public class FastForwardController {
     }
 
     // Интерфейс для уведомления о необходимости продвижения
-    public interface AdvanceListener {
-        void onAdvanceNeeded();
-    }
+
 }

@@ -1,4 +1,5 @@
 package org.aeribmm;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -10,8 +11,18 @@ public class BackgroundPanel extends JPanel {
     private BufferedImage backgroundImage;
 
     public BackgroundPanel(String imagePath) {
+        loadInitialBackground(imagePath);
+    }
+
+    public BackgroundPanel(BufferedImage image) {
+        this.backgroundImage = image;
+    }
+
+    /**
+     * Загружает начальный фон
+     */
+    private void loadInitialBackground(String imagePath) {
         System.out.println("Попытка загрузить изображение: " + imagePath);
-        System.out.println("Рабочая директория: " + System.getProperty("user.dir"));
 
         try {
             // Сначала пробуем загрузить как ресурс
@@ -24,9 +35,6 @@ public class BackgroundPanel extends JPanel {
 
             // Если не получилось, пробуем как обычный файл
             File imageFile = new File(imagePath);
-            System.out.println("Файл существует: " + imageFile.exists());
-            System.out.println("Абсолютный путь: " + imageFile.getAbsolutePath());
-
             if (imageFile.exists()) {
                 backgroundImage = ImageIO.read(imageFile);
                 System.out.println("Изображение успешно загружено как файл!");
@@ -39,8 +47,19 @@ public class BackgroundPanel extends JPanel {
         }
     }
 
-    public BackgroundPanel(BufferedImage image) {
+    /**
+     * НОВЫЙ МЕТОД: Устанавливает новое фоновое изображение
+     */
+    public void setBackgroundImage(BufferedImage image) {
         this.backgroundImage = image;
+        repaint(); // Перерисовываем панель
+    }
+
+    /**
+     * НОВЫЙ МЕТОД: Получить текущее фоновое изображение
+     */
+    public BufferedImage getBackgroundImage() {
+        return backgroundImage;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package org.aeribmm.parser;
 
+import org.aeribmm.background.BackgroundManager;
 import org.aeribmm.soundManager.AudioManager;
 import org.aeribmm.scenes.GameScene;
 
@@ -11,11 +12,13 @@ public class TextLoader {
     private List<String> text;
     private int textIndex;
     private GameScene gameScene;
+    private BackgroundManager bgManager;
 
     public TextLoader(GameScene gameScene) {
         this.text = new ArrayList<>();
         this.textIndex = 0;
         this.gameScene = gameScene;
+        this.bgManager = new BackgroundManager();
     }
 
     public void loadTextFile(String url){
@@ -93,6 +96,15 @@ public class TextLoader {
             String soundName = extractParameter(command, "#playSound(", ")");
             AudioManager.getInstance().playSoundEffect(soundName);
             System.out.println("Воспроизводится звук: " + soundName);
+        }else if (command.startsWith("#changeBackground(") && command.endsWith(")")) {
+            String backgroundName = extractParameter(command, "#changeBackground(", ")");
+            gameScene.changeBackground(backgroundName);
+            System.out.println("Фон изменен на: " + backgroundName);
+        }
+        else if (command.startsWith("#changeBackgroundAnimated(") && command.endsWith(")")) {
+            String backgroundName = extractParameter(command, "#changeBackgroundAnimated(", ")");
+            gameScene.changeBackgroundAnimated(backgroundName);
+            System.out.println("Фон анимированно изменен на: " + backgroundName);
         }
     }
 

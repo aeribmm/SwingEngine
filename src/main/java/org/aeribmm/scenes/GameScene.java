@@ -2,34 +2,39 @@ package org.aeribmm.scenes;
 
 import org.aeribmm.BackgroundPanel;
 import org.aeribmm.VisualNovelMain;
+import org.aeribmm.background.BackgroundManager;
 import org.aeribmm.parser.TextLoader;
 import org.aeribmm.soundManager.AudioInitializer;
 import org.aeribmm.soundManager.AudioManager;
-import org.aeribmm.text.TextAnimator;
-import org.aeribmm.text.TextBoxUI;
-import org.aeribmm.text.FastForwardController;
+import org.aeribmm.text.*;
 import org.aeribmm.text.FocusManager;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class GameScene extends MenuScreen implements KeyListener, FastForwardController.AdvanceListener {
+public class GameScene extends MenuScreen implements KeyListener, AdvanceListener {
     // Компоненты
     private TextBoxUI textBoxUI;
     private TextAnimator textAnimator;
     private FastForwardController fastForward;
     private FocusManager focusManager;
     private TextLoader textLoader;
+    private BackgroundManager backgroundManager;
 
     @Override
     public void createMenu() {
-        // Основная панель
-        panel = new BackgroundPanel("images/airi/bg-airi-play.png");
+        // ИЗМЕНЕНО: Создаем BackgroundPanel без конкретного изображения
+        panel = new BackgroundPanel("backgrounds/bg-corridor.png");
         panel.setLayout(new BorderLayout());
         panel.setFocusable(true);
         panel.addKeyListener(this);
 
         AudioInitializer.loadPianoSceneAudio();
+
+        // НОВОЕ: Инициализируем BackgroundManager
+        backgroundManager = new BackgroundManager();
+        backgroundManager.setCurrentBackgroundPanel((BackgroundPanel) panel);
 
         // Инициализируем компоненты
         initializeComponents();
@@ -39,6 +44,33 @@ public class GameScene extends MenuScreen implements KeyListener, FastForwardCon
         textLoader = new TextLoader(this);
         textLoader.loadTextFile("story.txt");
         textLoader.start();
+    }
+    public void changeBackground(String backgroundName) {
+        if (backgroundManager != null) {
+            boolean success = backgroundManager.changeBackground(backgroundName);
+            if (!success) {
+                System.err.println("Не удалось сменить фон на: " + backgroundName);
+            }
+        }
+    }
+
+    /**
+     * НОВЫЙ МЕТОД: Для анимированной смены фона
+     */
+    public void changeBackgroundAnimated(String backgroundName) {
+        if (backgroundManager != null) {
+            boolean success = backgroundManager.changeBackground(backgroundName, true);
+            if (!success) {
+                System.err.println("Не удалось сменить фон на: " + backgroundName);
+            }
+        }
+    }
+
+    /**
+     * НОВЫЙ МЕТОД: Получить BackgroundManager (для парсера)
+     */
+    public BackgroundManager getBackgroundManager() {
+        return backgroundManager;
     }
 
     private void initializeComponents() {
