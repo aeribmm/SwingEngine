@@ -24,7 +24,7 @@ public class AudioInitializer {
         AudioManager audioManager = AudioManager.getInstance();
 
         // Музыка для сцены с пианино
-        audioManager.loadAudio("liszt", "audio/liszt-love-dream.wav");
+        audioManager.loadAudio("liszt", "audio/liszt11mb.wav");
 
 
         System.out.println("Аудио для сцены с пианино загружено!");

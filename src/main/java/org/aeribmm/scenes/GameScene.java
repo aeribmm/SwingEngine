@@ -24,7 +24,7 @@ public class GameScene extends MenuScreen implements KeyListener, AdvanceListene
 
     @Override
     public void createMenu() {
-        // ИЗМЕНЕНО: Создаем BackgroundPanel без конкретного изображения
+        // Основная панель
         panel = new BackgroundPanel("backgrounds/bg-corridor.png");
         panel.setLayout(new BorderLayout());
         panel.setFocusable(true);
@@ -32,18 +32,16 @@ public class GameScene extends MenuScreen implements KeyListener, AdvanceListene
 
         AudioInitializer.loadPianoSceneAudio();
 
-        // НОВОЕ: Инициализируем BackgroundManager
-        backgroundManager = new BackgroundManager();
-        backgroundManager.setCurrentBackgroundPanel((BackgroundPanel) panel);
-
         // Инициализируем компоненты
         initializeComponents();
         setupEventHandlers();
 
-        // Загружаем контент
+        // ИЗМЕНЕНО: Создаем TextLoader, но НЕ запускаем его
         textLoader = new TextLoader(this);
         textLoader.loadTextFile("story.txt");
-        textLoader.start();
+        // textLoader.start(); // УБРАЛИ эту строку!
+
+        // Показываем начальное сообщение
     }
     public void changeBackground(String backgroundName) {
         if (backgroundManager != null) {
@@ -168,10 +166,18 @@ public class GameScene extends MenuScreen implements KeyListener, AdvanceListene
             return;
         }
 
+        // Обычная логика продолжения
         if (textLoader != null && textLoader.hasNextLine()) {
             textLoader.nextLine();
         } else {
             showText("Конец истории. Нажмите ESC для выхода в меню.");
+        }
+    }
+
+    public void startStory() {
+        if (textLoader != null) {
+            System.out.println("Запуск истории...");
+            textLoader.start();
         }
     }
 

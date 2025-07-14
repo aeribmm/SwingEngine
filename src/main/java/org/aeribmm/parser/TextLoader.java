@@ -12,15 +12,41 @@ public class TextLoader {
     private List<String> text;
     private int textIndex;
     private GameScene gameScene;
-    private BackgroundManager bgManager;
+    private boolean started = false; // НОВОЕ ПОЛЕ
 
     public TextLoader(GameScene gameScene) {
         this.text = new ArrayList<>();
         this.textIndex = 0;
         this.gameScene = gameScene;
-        this.bgManager = new BackgroundManager();
+        this.started = false; // Инициализируем как не запущенный
     }
 
+    // ... существующие методы ...
+
+    public void start() {
+        started = true; // НОВОЕ: отмечаем что запущен
+        textIndex = 0;
+        if (!text.isEmpty()) {
+            showCurrentLine();
+        } else {
+            gameScene.showText("Файл пуст или не загружен.");
+        }
+    }
+
+    /**
+     * НОВЫЙ МЕТОД: Проверяет, запущен ли загрузчик
+     */
+    public boolean isStarted() {
+        return started;
+    }
+
+    /**
+     * НОВЫЙ МЕТОД: Сброс состояния (для перезапуска)
+     */
+    public void reset() {
+        started = false;
+        textIndex = 0;
+    }
     public void loadTextFile(String url){
         text.clear();
         textIndex = 0;
@@ -133,14 +159,5 @@ public class TextLoader {
 
     public boolean hasNextLine() {
         return textIndex < text.size() - 1;
-    }
-
-    public void start() {
-        textIndex = 0;
-        if (!text.isEmpty()) {
-            showCurrentLine();
-        } else {
-            gameScene.showText("Файл пуст или не загружен.");
-        }
     }
 }

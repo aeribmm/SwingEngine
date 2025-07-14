@@ -87,6 +87,13 @@ public class MainMenuScreen extends MenuScreen {
             @Override
             public void actionPerformed(ActionEvent e) {
                 VisualNovelMain.getInstance().changeScreen("game");
+
+                // ДОБАВИТЬ ЭТУ СТРОКУ:
+                // Получаем GameScene и запускаем историю
+                GameScene gameScene = (GameScene) VisualNovelMain.getInstance().getMenus().get("game");
+                if (gameScene != null) {
+                    gameScene.startStory();
+                }
             }
         });
 
