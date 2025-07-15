@@ -2,6 +2,7 @@ package org.aeribmm.scenes;
 
 import org.aeribmm.BackgroundPanel;
 import org.aeribmm.VisualNovelMain;
+import org.aeribmm.ui.UI;
 
 import javax.swing.*;
 import java.awt.*;
@@ -28,45 +29,49 @@ public class MainMenuScreen extends MenuScreen {
         panel = new BackgroundPanel("backgrounds/bg-main-menu.png");
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
-
-        // Добавляем отступ сверху
+        // Добавляем адаптивный отступ сверху
         panel.add(Box.createVerticalGlue());
 
-        // Создаем кнопки
+        // Создаем кнопки с новыми константами
         startButton = createMenuButton("Новая игра");
         loadButton = createMenuButton("Загрузить");
         settingsButton = createMenuButton("Настройки");
         exitButton = createMenuButton("Выход");
 
+        // Добавляем кнопки с адаптивными отступами
         panel.add(startButton);
-        panel.add(Box.createVerticalStrut(20));
+        panel.add(Box.createVerticalStrut(UI.MEDIUM_MARGIN));
         panel.add(loadButton);
-        panel.add(Box.createVerticalStrut(20));
+        panel.add(Box.createVerticalStrut(UI.MEDIUM_MARGIN));
         panel.add(settingsButton);
-        panel.add(Box.createVerticalStrut(20));
+        panel.add(Box.createVerticalStrut(UI.MEDIUM_MARGIN));
         panel.add(exitButton);
 
         // Добавляем отступ снизу
         panel.add(Box.createVerticalGlue());
 
-        // Добавляем обработчики событий
         setupEventHandlers();
     }
 
     public JButton createMenuButton(String text) {
         JButton button = new JButton(text);
         button.setAlignmentX(Component.CENTER_ALIGNMENT);
-        button.setPreferredSize(new Dimension(200, 50));
-        button.setMaximumSize(new Dimension(200, 50));
 
-        // Стилизация кнопки
+        // ✅ НОВЫЙ КОД: Используем адаптивные размеры
+        button.setPreferredSize(UI.MENU_BUTTON_SIZE);
+        button.setMaximumSize(UI.MENU_BUTTON_SIZE);
+        button.setMinimumSize(UI.MENU_BUTTON_SIZE);
+
+        // Стилизация с адаптивными значениями
         button.setBackground(Color.DARK_GRAY);
         button.setForeground(Color.WHITE);
         button.setFocusPainted(false);
-        button.setBorder(BorderFactory.createLineBorder(Color.GRAY, 2));
-        button.setFont(new Font("Arial", Font.BOLD, 16));
+        button.setBorder(BorderFactory.createLineBorder(Color.GRAY, UI.BORDER_WIDTH));
 
-        // Эффект при наведении
+        // ✅ НОВЫЙ КОД: Адаптивный шрифт
+        button.setFont(new Font("Arial", Font.BOLD, UI.MEDIUM_FONT));
+
+        // Эффект при наведении (без изменений)
         button.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseEntered(java.awt.event.MouseEvent e) {

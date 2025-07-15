@@ -22,56 +22,92 @@ public class GameScene extends MenuScreen implements KeyListener, AdvanceListene
     private TextLoader textLoader;
     private BackgroundManager backgroundManager;
 
+    // ✅ ДОБАВЛЕНО: Сохраняем ссылку на BackgroundPanel
+    private BackgroundPanel backgroundPanel;
+
     @Override
     public void createMenu() {
-        // Основная панель
-        panel = new BackgroundPanel("backgrounds/bg-corridor.png");
+        // ✅ ИСПРАВЛЕНИЕ: Создаем BackgroundPanel и сохраняем ссылку
+        backgroundPanel = new BackgroundPanel("backgrounds/bg-corridor.png");
+        panel = backgroundPanel;
         panel.setLayout(new BorderLayout());
         panel.setFocusable(true);
         panel.addKeyListener(this);
 
+        System.out.println("=== ИНИЦИАЛИЗАЦИЯ GAMESCENE ===");
+
         AudioInitializer.loadPianoSceneAudio();
+
+        // ✅ КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Инициализируем BackgroundManager!
+        backgroundManager = new BackgroundManager();
+        backgroundManager.setCurrentBackgroundPanel(backgroundPanel);
+        System.out.println("✅ BackgroundManager инициализирован и связан с панелью");
 
         // Инициализируем компоненты
         initializeComponents();
         setupEventHandlers();
 
-        // ИЗМЕНЕНО: Создаем TextLoader, но НЕ запускаем его
+        // Создаем TextLoader, но НЕ запускаем его
         textLoader = new TextLoader(this);
         textLoader.loadTextFile("story.txt");
-        // textLoader.start(); // УБРАЛИ эту строку!
 
-        // Показываем начальное сообщение
+        System.out.println("=== GAMESCENE ГОТОВ К РАБОТЕ ===");
     }
+
     public void changeBackground(String backgroundName) {
+        System.out.println("=== СМЕНА ФОНА ===");
+        System.out.println("Запрос смены фона на: " + backgroundName);
+        System.out.println("BackgroundManager: " + (backgroundManager != null ? "ОК" : "NULL"));
+
         if (backgroundManager != null) {
+            // Показываем доступные фоны для отладки
+            String[] available = backgroundManager.getLoadedBackgrounds();
+            System.out.println("Доступные фоны: " + String.join(", ", available));
+
             boolean success = backgroundManager.changeBackground(backgroundName);
+            System.out.println("Результат смены фона: " + (success ? "УСПЕХ" : "ОШИБКА"));
+
             if (!success) {
-                System.err.println("Не удалось сменить фон на: " + backgroundName);
+                System.err.println("❌ Не удалось сменить фон на: " + backgroundName);
+            } else {
+                System.out.println("✅ Фон успешно изменен на: " + backgroundName);
             }
+        } else {
+            System.err.println("❌ КРИТИЧЕСКАЯ ОШИБКА: BackgroundManager = null!");
         }
     }
 
     /**
-     * НОВЫЙ МЕТОД: Для анимированной смены фона
+     * Для анимированной смены фона
      */
     public void changeBackgroundAnimated(String backgroundName) {
+        System.out.println("=== АНИМИРОВАННАЯ СМЕНА ФОНА ===");
+        System.out.println("Запрос анимированной смены фона на: " + backgroundName);
+
         if (backgroundManager != null) {
             boolean success = backgroundManager.changeBackground(backgroundName, true);
+            System.out.println("Результат анимированной смены: " + (success ? "УСПЕХ" : "ОШИБКА"));
+
             if (!success) {
-                System.err.println("Не удалось сменить фон на: " + backgroundName);
+                System.err.println("❌ Не удалось анимированно сменить фон на: " + backgroundName);
+            } else {
+                System.out.println("✅ Фон анимированно изменен на: " + backgroundName);
             }
+        } else {
+            System.err.println("❌ КРИТИЧЕСКАЯ ОШИБКА: BackgroundManager = null!");
         }
     }
 
     /**
-     * НОВЫЙ МЕТОД: Получить BackgroundManager (для парсера)
+     * Получить BackgroundManager (для парсера)
      */
     public BackgroundManager getBackgroundManager() {
         return backgroundManager;
     }
 
     private void initializeComponents() {
+        System.out.println("Инициализация UI компонентов...");
+
         // Создаем компоненты
         textBoxUI = new TextBoxUI();
         textAnimator = new TextAnimator(textBoxUI);
@@ -85,6 +121,8 @@ public class GameScene extends MenuScreen implements KeyListener, AdvanceListene
         // Настраиваем UI
         textBoxUI.createTextBox();
         panel.add(textBoxUI.getTextBox(), BorderLayout.SOUTH);
+
+        System.out.println("✅ UI компоненты инициализированы");
     }
 
     private void setupEventHandlers() {
@@ -105,7 +143,6 @@ public class GameScene extends MenuScreen implements KeyListener, AdvanceListene
     // ============ ОБРАБОТКА ВВОДА ============
     @Override
     public void keyPressed(KeyEvent e) {
-
         System.out.println("Key pressed: " + e.getKeyCode() + " (" + KeyEvent.getKeyText(e.getKeyCode()) + ")");
 
         switch (e.getKeyCode()) {
@@ -176,8 +213,10 @@ public class GameScene extends MenuScreen implements KeyListener, AdvanceListene
 
     public void startStory() {
         if (textLoader != null) {
-            System.out.println("Запуск истории...");
+            System.out.println("=== ЗАПУСК ИСТОРИИ ===");
             textLoader.start();
+        } else {
+            System.err.println("❌ TextLoader = null!");
         }
     }
 

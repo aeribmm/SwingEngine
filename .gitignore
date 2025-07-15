@@ -50,34 +50,43 @@ $RECYCLE.BIN/
 *.ear
 *.nar
 *.log
-
-# Java heap dumps
 *.hprof
 
-### Game Resources ###
-# PNG изображения
+### МЕДИА ФАЙЛЫ (все форматы) ###
+# Изображения
 *.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.svg
+*.webp
+*.tiff
+*.ico
 
-# Другие изображения (раскомментируйте если нужно)
-# *.jpg
-# *.jpeg
-# *.gif
-# *.bmp
-# *.svg
+# Аудио файлы
+*.mp3
+*.wav
+*.ogg
+*.m4a
+*.flac
+*.aac
 
-# Аудио файлы (раскомментируйте если нужно)
-# *.mp3
-# *.wav
-# *.ogg
-# *.m4a
+# Видео файлы
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.webm
 
-# Видео файлы (раскомментируйте если нужно)
-# *.mp4
-# *.avi
-# *.mov
+### ПАПКИ С РЕСУРСАМИ ###
+resources/backgrounds/
+resources/images/
+resources/sounds/
+resources/music/
+resources/audio/
 
 ### Logs ###
-*.log
 logs/
 log/
 
@@ -101,15 +110,3 @@ log/
 *.rar
 *.tar
 *.zip
-
-### Application specific ###
-# Конфигурационные файлы (если содержат пароли)
-# config.properties
-# application.properties
-
-# Папки с ресурсами (раскомментируйте если нужно игнорировать целиком)
-resources/backgrounds/
-resources/images/
-# resources/sounds/
-# resources/music/
-resources/audio/
