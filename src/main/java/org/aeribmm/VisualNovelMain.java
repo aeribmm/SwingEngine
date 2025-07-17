@@ -136,7 +136,6 @@ public class VisualNovelMain {
         frame.revalidate();
         frame.repaint();
 
-        // Устанавливаем фокус (важно для обработки клавиш)
         currentMenu.getPanel().requestFocus();
     }
 }

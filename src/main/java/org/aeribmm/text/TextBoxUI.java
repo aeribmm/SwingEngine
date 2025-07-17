@@ -58,7 +58,7 @@ public class TextBoxUI {
         characterNameLabel.setForeground(Color.WHITE);
 
         // ✅ НОВЫЙ КОД: Адаптивный шрифт
-        characterNameLabel.setFont(new Font("Arial", Font.BOLD, UI.MEDIUM_FONT));
+        characterNameLabel.setFont(new Font("Dialog", Font.BOLD, UI.MEDIUM_FONT));
         nameBox.add(characterNameLabel);
     }
 
@@ -91,7 +91,7 @@ public class TextBoxUI {
         textArea.setForeground(Color.WHITE);
 
         // ✅ НОВЫЙ КОД: Адаптивный шрифт
-        textArea.setFont(new Font("Arial", Font.PLAIN, UI.LARGE_FONT));
+        textArea.setFont(new Font("Dialog", Font.PLAIN, UI.LARGE_FONT));
         textArea.setVerticalAlignment(SwingConstants.TOP);
 
         mainTextPanel.add(textArea, BorderLayout.CENTER);

@@ -15,10 +15,19 @@ public class BackgroundManager {
     private HashMap<String, BufferedImage> backgroundImages;
     private BackgroundPanel currentBackgroundPanel;
     private String currentBackgroundName = "";
+    private boolean fastForwardMode = false; // ✅ НОВОЕ ПОЛЕ
 
     public BackgroundManager() {
         backgroundImages = new HashMap<>();
         loadDefaultBackgrounds();
+    }
+
+    /**
+     * ✅ НОВЫЙ МЕТОД: Устанавливает режим быстрой перемотки
+     */
+    public void setFastForwardMode(boolean fastForward) {
+        this.fastForwardMode = fastForward;
+        System.out.println("BackgroundManager: Режим быстрой перемотки " + (fastForward ? "ВКЛЮЧЕН" : "ВЫКЛЮЧЕН"));
     }
 
     /**
@@ -85,7 +94,7 @@ public class BackgroundManager {
     }
 
     /**
-     * Меняет фон с возможностью анимации
+     * ✅ ОБНОВЛЕННЫЙ МЕТОД: Меняет фон с учетом быстрой перемотки
      */
     public boolean changeBackground(String backgroundName, boolean animate) {
         if (currentBackgroundPanel == null) {
@@ -98,10 +107,18 @@ public class BackgroundManager {
             System.err.println("Фон не найден: " + backgroundName);
             return false;
         }
-        if (animate) {
-            animateBackgroundChange(newBackground, backgroundName);
-        } else {
+
+        // ✅ КЛЮЧЕВАЯ ЛОГИКА: Если быстрая перемотка активна, игнорируем анимацию
+        if (fastForwardMode) {
+            System.out.println("Быстрая перемотка активна - меняем фон мгновенно: " + backgroundName);
             setBackgroundImmediately(newBackground, backgroundName);
+        } else {
+            // Обычная логика
+            if (animate) {
+                animateBackgroundChange(newBackground, backgroundName);
+            } else {
+                setBackgroundImmediately(newBackground, backgroundName);
+            }
         }
 
         return true;
@@ -134,6 +151,14 @@ public class BackgroundManager {
         ActionListener fadeAction = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                // ✅ ДОБАВЛЕНО: Проверяем быструю перемотку во время анимации
+                if (fastForwardMode) {
+                    System.out.println("Быстрая перемотка включилась во время анимации фона - завершаем мгновенно");
+                    fadeTimer.stop();
+                    setBackgroundImmediately(newBackground, backgroundName);
+                    return;
+                }
+
                 alpha[0] -= fadeSpeed;
 
                 if (alpha[0] <= 0) {

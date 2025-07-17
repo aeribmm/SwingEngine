@@ -143,22 +143,21 @@ public class GameScene extends MenuScreen implements KeyListener, AdvanceListene
     // ============ ОБРАБОТКА ВВОДА ============
     @Override
     public void keyPressed(KeyEvent e) {
-        System.out.println("Key pressed: " + e.getKeyCode() + " (" + KeyEvent.getKeyText(e.getKeyCode()) + ")");
-
         switch (e.getKeyCode()) {
             case KeyEvent.VK_CONTROL:
                 if (!fastForward.isCtrlPressed()) {
-                    System.out.println("CTRL нажат впервые!");
                     fastForward.enableFastForward();
+                    // ✅ НОВОЕ: Уведомляем BackgroundManager о быстрой перемотке
+                    if (backgroundManager != null) {
+                        backgroundManager.setFastForwardMode(true);
+                    }
                 }
                 break;
             case KeyEvent.VK_SPACE:
             case KeyEvent.VK_ENTER:
-                System.out.println("Space/Enter нажат!");
                 handleContinue();
                 break;
             case KeyEvent.VK_ESCAPE:
-                System.out.println("ESC нажат!");
                 exitToMenu();
                 break;
         }
@@ -166,11 +165,12 @@ public class GameScene extends MenuScreen implements KeyListener, AdvanceListene
 
     @Override
     public void keyReleased(KeyEvent e) {
-        System.out.println("Key released: " + e.getKeyCode() + " (" + KeyEvent.getKeyText(e.getKeyCode()) + ")");
-
         if (e.getKeyCode() == KeyEvent.VK_CONTROL) {
-            System.out.println("CTRL отпущен!");
             fastForward.disableFastForward();
+            // ✅ НОВОЕ: Уведомляем BackgroundManager о выключении быстрой перемотки
+            if (backgroundManager != null) {
+                backgroundManager.setFastForwardMode(false);
+            }
         }
     }
 

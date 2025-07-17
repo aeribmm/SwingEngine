@@ -158,7 +158,6 @@ public class TextAnimator {
         UIScaleManager scaleManager = UIScaleManager.getInstance();
         Dimension screenSize = scaleManager.getScreenSize();
 
-        // Учитываем отступы текстового окна (по 30px с каждой стороны + общие отступы)
         int totalPadding = UI.LARGE_MARGIN * 4; // 30px слева + 30px справа + отступы панели
         int availableWidth = containerWidth - totalPadding;
 
