@@ -120,63 +120,45 @@ public class TextAnimator {
     }
 
     /**
-     * ✅ ИСПРАВЛЕННЫЙ МЕТОД: Правильный расчет ширины текста
+     * ✅ ОБНОВЛЕННЫЙ МЕТОД: Адаптивная обработка текста
      */
     private String wrapText(String text) {
         if (text == null || text.isEmpty()) {
             return "";
         }
 
-        // Получаем текущую ширину текстового окна
-        JLabel textArea = textBoxUI.getTextArea();
-        if (textArea.getParent() == null) {
-            return "<html><body>" + text + "</body></html>";
-        }
+        // Получаем оптимальную ширину текста из TextBoxUI
+        int textWidth = calculateOptimalTextWidth();
 
-        // Получаем реальную ширину родительского контейнера
-        Container parent = textArea.getParent();
-        int containerWidth = parent.getWidth();
-
-        // Если контейнер еще не инициализирован, используем размер экрана
-        if (containerWidth <= 0) {
-            containerWidth = UIScaleManager.getInstance().getScreenSize().width;
-        }
-
-        // Вычисляем безопасную ширину для текста
-        int textWidth = calculateOptimalTextWidth(containerWidth);
-
-        System.out.println("Контейнер: " + containerWidth + "px, Текст: " + textWidth + "px");
+        System.out.println("Адаптивная ширина текста: " + textWidth + "px (" + textBoxUI.getSizeInfo() + ")");
 
         return "<html><body style='width: " + textWidth + "px; word-wrap: break-word;'>" +
                 text + "</body></html>";
     }
 
     /**
-     * ✅ НОВЫЙ МЕТОД: Оптимальный расчет ширины текста
+     * ✅ ИСПРАВЛЕННЫЙ МЕТОД: Правильно рассчитывает ширину для переноса строк
      */
-    private int calculateOptimalTextWidth(int containerWidth) {
+    private int calculateOptimalTextWidth() {
         UIScaleManager scaleManager = UIScaleManager.getInstance();
-        Dimension screenSize = scaleManager.getScreenSize();
+        int screenWidth = scaleManager.getScreenSize().width;
 
-        int totalPadding = UI.LARGE_MARGIN * 4; // 30px слева + 30px справа + отступы панели
-        int availableWidth = containerWidth - totalPadding;
-
+        // Жестко задаем ширину для переноса строк в зависимости от разрешения
         int textWidth;
 
-        // Адаптивный расчет в зависимости от разрешения экрана
-        if (screenSize.width >= 3840) { // 4K и выше
-            textWidth = Math.min(scaleManager.scaleWidth(1400), (int)(availableWidth * 0.5));
-        } else if (screenSize.width >= 2560) { // 2K мониторы
-            textWidth = Math.min(scaleManager.scaleWidth(1200), (int)(availableWidth * 0.6));
-        } else if (screenSize.width >= 1920) { // Full HD
-            textWidth = Math.min(scaleManager.scaleWidth(1000), (int)(availableWidth * 0.7));
-        } else { // Меньшие разрешения
-            textWidth = (int)(availableWidth * 0.8);
+        if (screenWidth <= 1366) {
+             textWidth = 900;
+        } else if (screenWidth <= 1920) {
+            textWidth = 950; // Для Full HD и около того (ваш случай 1536px)
+        } else if (screenWidth <= 2560) {
+            textWidth = 1590; // Для 2K мониторов
+        } else if (screenWidth <= 3840) {
+            textWidth = 2380; // Для 4K мониторов
+        } else {
+            textWidth = 2200; // Для сверхвысоких разрешений
         }
 
-        // Ограничиваем минимальную и максимальную ширину
-        textWidth = Math.max(scaleManager.scaleWidth(400), textWidth);
-        textWidth = Math.min(scaleManager.scaleWidth(1600), textWidth);
+        System.out.println("Жестко заданная ширина для переноса строк: " + textWidth + "px (экран: " + screenWidth + "px)");
 
         return textWidth;
     }

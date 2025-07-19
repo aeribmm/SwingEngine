@@ -1,6 +1,7 @@
 package org.aeribmm.text;
 
 import org.aeribmm.ui.UI;
+import org.aeribmm.ui.UIScaleManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,6 +13,9 @@ public class TextBoxUI {
     private JLabel characterNameLabel;
     private boolean isHidden = false;
 
+    // Адаптивные настройки
+    private final UIScaleManager scaleManager = UIScaleManager.getInstance();
+
     public void createTextBox() {
         // Главная панель с адаптивной высотой
         textBox = new JPanel();
@@ -19,17 +23,68 @@ public class TextBoxUI {
         textBox.setPreferredSize(new Dimension(0, UI.TEXT_BOX_HEIGHT));
         textBox.setOpaque(false);
 
-        // ✅ НОВЫЙ КОД: Адаптивные отступы
-        textBox.setBorder(BorderFactory.createEmptyBorder(0,
-                UI.MEDIUM_MARGIN,
-                UI.MEDIUM_MARGIN,
-                UI.MEDIUM_MARGIN));
+        // ✅ НОВЫЙ КОД: Адаптивные отступы в зависимости от разрешения
+        Insets adaptiveInsets = calculateAdaptiveInsets();
+        textBox.setBorder(BorderFactory.createEmptyBorder(
+                adaptiveInsets.top,
+                adaptiveInsets.left,
+                adaptiveInsets.bottom,
+                adaptiveInsets.right));
 
         createNameBox();
         createMainTextPanel();
 
         textBox.add(nameBox, BorderLayout.NORTH);
         textBox.add(createMainTextPanel(), BorderLayout.CENTER);
+    }
+
+    /**
+     * ✅ ИСПРАВЛЕННЫЙ МЕТОД: Возвращаем нормальные отступы для текстового окна
+     */
+    private Insets calculateAdaptiveInsets() {
+        Dimension screenSize = scaleManager.getScreenSize();
+        int screenWidth = screenSize.width;
+
+        int topMargin = 0;
+        int bottomMargin = UI.MEDIUM_MARGIN;
+        int sideMargin;
+
+        if (screenWidth <= 1366) {
+            // Маленькие экраны - небольшие отступы
+            sideMargin = UI.MEDIUM_MARGIN;
+            System.out.println("Маленький экран: " + screenWidth + "px - минимальные отступы: " + sideMargin + "px");
+        } else if (screenWidth <= 1920) {
+            // Full HD - умеренные отступы (10% с каждой стороны)
+            sideMargin = (int)(screenWidth * 0.08); // 8% с каждой стороны
+            System.out.println("Full HD: " + screenWidth + "px - умеренные отступы: " + sideMargin + "px");
+        } else if (screenWidth <= 2560) {
+            // 2K мониторы - средние отступы
+            sideMargin = (int)(screenWidth * 0.12); // 12% с каждой стороны
+            System.out.println("2K монитор: " + screenWidth + "px - средние отступы: " + sideMargin + "px");
+        } else if (screenWidth <= 3840) {
+            // 4K мониторы - большие отступы
+            sideMargin = (int)(screenWidth * 0.15); // 15% с каждой стороны
+            System.out.println("4K монитор: " + screenWidth + "px - большие отступы: " + sideMargin + "px");
+        } else {
+            // Сверхвысокие разрешения - очень большие отступы
+            sideMargin = (int)(screenWidth * 0.18); // 18% с каждой стороны
+            System.out.println("Сверхвысокое разрешение: " + screenWidth + "px - очень большие отступы: " + sideMargin + "px");
+        }
+
+        // Ограничиваем минимальные и максимальные отступы
+        sideMargin = Math.max(UI.MEDIUM_MARGIN, sideMargin);
+        sideMargin = Math.min(screenWidth / 3, sideMargin);
+
+        return new Insets(topMargin, sideMargin, bottomMargin, sideMargin);
+    }
+
+    /**
+     * ✅ НОВЫЙ МЕТОД: Получает ширину текстового контента
+     */
+    public int getTextContentWidth() {
+        Insets insets = calculateAdaptiveInsets();
+        int screenWidth = scaleManager.getScreenSize().width;
+        return screenWidth - insets.left - insets.right - (UI.LARGE_MARGIN * 2); // Вычитаем внутренние отступы
     }
 
     private void createNameBox() {
@@ -114,6 +169,19 @@ public class TextBoxUI {
 
     public void setText(String text) {
         textArea.setText(text);
+    }
+
+    /**
+     * ✅ НОВЫЙ МЕТОД: Получает информацию о текущих размерах
+     */
+    public String getSizeInfo() {
+        Insets insets = calculateAdaptiveInsets();
+        int contentWidth = getTextContentWidth();
+        int screenWidth = scaleManager.getScreenSize().width;
+        double widthPercentage = (double)contentWidth / screenWidth * 100;
+
+        return String.format("Экран: %dpx, Контент: %dpx (%.1f%%), Отступы: %dpx",
+                screenWidth, contentWidth, widthPercentage, insets.left);
     }
 
     // Геттеры
